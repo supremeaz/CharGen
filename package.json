@@ -1,0 +1,14 @@
+{
+  "name": "char_gen",
+  "version": "1.0.0",
+  "description": "API + cli app to generate a D&D character",
+  "main": "Character.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "azhao",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
