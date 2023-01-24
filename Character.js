@@ -1,14 +1,19 @@
-const validClasses = ["Random","Fighter","Mage","Cleric"];
-const validRaces = ["Random","Human","Elf","Orc"];
-const validAlignments = ["Random","Law","Neutral","Chaos"];
+const fs = require('fs');
+const validClasses = ["Random","Fighter","Barbarian","Warlock","Paladin","Ranger","Monk","Rogue","Cleric","Sorcerer","Bard","Druid","Wizard"];
+const validRaces = ["Random","Human","Elf","Dwarf","Halfing","Gnome","Dragonborn","Half-elf","Half-orc","Thiefling"];
+const validAlignments = ["Random","Lawful Good","Neutral Good","Chaotic Good","Lawful Neutral","True Neutral","Chaotic Neutral","Lawful Evil","Neutral Evil","Chaotic Evil","Unaligned"];
+
+//Read defauls from files
+const validBackgrounds = JSON.parse(fs.readFileSync('./backgrounds.json'));
 
 class Character {
   constructor(fname, lname) {
-    this.fname = fname;
-    this.lname = lname;
+
+    //Generate a random name
+    this.generateName();
 
     //Generate Randomized attributes
-    this.generateAttributes();
+    this.randomizeAttributes();
 
     //Assign to a random class
     this.setClass(0);
@@ -22,17 +27,53 @@ class Character {
     this.setLevel(1);
 
     this.setXp(0);
+
+    //Assign to a random background
+    this.setBackground(0);
   }
   
+  generateName(){
+    let randomNames = JSON.parse(fs.readFileSync('./random-names.json'));
+    this.fname = randomNames.first_names[Math.floor(Math.random() * randomNames.first_names.length)];
+    this.lname = randomNames.last_names[Math.floor(Math.random() * randomNames.last_names.length)];
+  }
+
   generateAttributes() {
-    this.ability_score = {};
-    this.ability_score.str = Math.floor(Math.random() * 16 + 3);
-    this.ability_score.int = Math.floor(Math.random() * 16 + 3);
-    this.ability_score.wis = Math.floor(Math.random() * 16 + 3);
-    this.ability_score.dex = Math.floor(Math.random() * 16 + 3);
-    this.ability_score.con = Math.floor(Math.random() * 16 + 3);
-    this.ability_score.cha = Math.floor(Math.random() * 16 + 3);
+    let ability_scores = [];
+    for(let i = 0; i < 6; i++){
+      ability_scores.push(this.rollAttribute());
+    }
+    return ability_scores;
   };
+ftempRolls
+
+  setAttributes(){
+    //Code to assign ability score rolls with user input.
+  }
+
+  randomizeAttributes() {
+    let ability_scores = this.generateAttributes();
+    this.ability_score = {};
+    this.ability_score.str = ability_scores[0];
+    this.ability_score.int = ability_scores[1];
+    this.ability_score.wis = ability_scores[2];
+    this.ability_score.dex = ability_scores[3];
+    this.ability_score.con = ability_scores[4];
+    this.ability_score.cha = ability_scores[5];
+
+  };
+
+  rollAttribute(){
+    let tempRolls = [];
+    for(let i = 0; i <4; i++){
+      tempRolls[i] = this.rollDie(6);
+    }
+    return tempRolls.reduce((a,b)=> a+b,0) - Math.min(...tempRolls);
+  }
+
+  rollDie(d){
+    return Math.floor(Math.random() * d + 1);
+  }
   
   setClass(assignedClass){
     let chosenClass = 0;
@@ -66,6 +107,32 @@ class Character {
     this.assigned_alignment = validAlignments[chosenAlignment];
   }
 
+  setBackground(assignedBackground){
+    let chosenBackground = 0;
+    let backgroundFound = false;
+    this.assigned_background = {};
+    
+    //If "Random" is chosen, randomly choose from one of the races available through the array
+    if(assignedBackground == 0){
+      chosenBackground = validBackgrounds.backgrounds[Math.floor(Math.random()*(validBackgrounds.backgrounds.length-1)+1)].name;
+    } else{
+      chosenBackground = assignedBackground;
+    }
+    validBackgrounds.backgrounds.forEach(element => {
+      if(element.name == chosenBackground){
+        backgroundFound = true;
+        this.assigned_background.name = element.name;
+        this.assigned_background.description = element.description;
+        this.assigned_background.skill_proficiencies = element.skill_proficiencies;
+        this.assigned_background.tool_proficiencies = element.tool_proficiencies;
+        this.assigned_background.equipments = element.equipment;
+      }
+    }); 
+    if(!backgroundFound){
+      console.log("Invalid Background - not found");
+    }
+  }
+
   setLevel(level){
     this.level = level;
   }
@@ -83,7 +150,8 @@ class Character {
       "assigned_race": this.assigned_race,
       "level":this.level,
       "xp": this.xp,
-      "alignment": this.assigned_alignment
+      "alignment": this.assigned_alignment,
+      "background": this.assigned_background
     });
   }
 
@@ -103,10 +171,23 @@ class Character {
       "Level: " + this.level + "\n" +
       "XP: " + this.xp + "\n" +
       "Alignment: " + this.assigned_alignment + "\n" +
-      ""
-        
-        ;
-  
+      "Background: " + this.assigned_background.name + "\n" + 
+        "\t Description: " + this.assigned_background.description + "\n" +
+        "Skill Proficiencies: " + "\n";
+    this.assigned_background.skill_proficiencies.forEach(element => {
+      formattedInfo += "\t - " + element + "\n"
+    });
+
+    formattedInfo += "Tool Proficiencies: " + "\n";
+    this.assigned_background.tool_proficiencies.forEach(element=>{
+      formattedInfo += "\t - " + element + "\n"
+    });
+
+    formattedInfo += "Equipments: " + "\n";
+    this.assigned_background.equipments.forEach(element =>{
+      formattedInfo += "\t - " + element.name + ", Quantity: " + element.quantity + "\n";
+    });
+    
     return formattedInfo;
   };
 }
