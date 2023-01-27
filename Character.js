@@ -7,7 +7,7 @@ const validAlignments = ["Random","Lawful Good","Neutral Good","Chaotic Good","L
 const validBackgrounds = JSON.parse(fs.readFileSync('./backgrounds.json'));
 
 class Character {
-  constructor(fname, lname) {
+  constructor() {
 
     //Generate a random name
     this.generateName();
