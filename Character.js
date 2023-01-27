@@ -1,4 +1,5 @@
 const fs = require('fs');
+const gamefunctions = require('./game-functions');
 const validClasses = ["Random","Fighter","Barbarian","Warlock","Paladin","Ranger","Monk","Rogue","Cleric","Sorcerer","Bard","Druid","Wizard"];
 const validRaces = ["Random","Human","Elf","Dwarf","Halfing","Gnome","Dragonborn","Half-elf","Half-orc","Thiefling"];
 const validAlignments = ["Random","Lawful Good","Neutral Good","Chaotic Good","Lawful Neutral","True Neutral","Chaotic Neutral","Lawful Evil","Neutral Evil","Chaotic Evil","Unaligned"];
@@ -66,15 +67,11 @@ ftempRolls
   rollAttribute(){
     let tempRolls = [];
     for(let i = 0; i <4; i++){
-      tempRolls[i] = this.rollDie(6);
+      tempRolls[i] = gamefunctions.diceRoll(1,6,0);
     }
     return tempRolls.reduce((a,b)=> a+b,0) - Math.min(...tempRolls);
   }
 
-  rollDie(d){
-    return Math.floor(Math.random() * d + 1);
-  }
-  
   setClass(assignedClass){
     let chosenClass = 0;
     
