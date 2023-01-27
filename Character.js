@@ -46,7 +46,6 @@ class Character {
     }
     return ability_scores;
   };
-ftempRolls
 
   setAttributes(){
     //Code to assign ability score rolls with user input.
@@ -152,6 +151,14 @@ ftempRolls
     });
   }
 
+  exportToFile = function(){
+    fs.writeFile('./CharacterDirectory/'+this.fname+this.lname+'.json', this.exportToJSON(), err=>{
+      if (err){
+        console.log(err);
+      }
+    });
+  }
+
   toString = function characterToString() {
     let formattedInfo = 
       "Here are your Character Details: \n" +
@@ -184,6 +191,8 @@ ftempRolls
     this.assigned_background.equipments.forEach(element =>{
       formattedInfo += "\t - " + element.name + ", Quantity: " + element.quantity + "\n";
     });
+
+    formattedInfo += "\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n";
     
     return formattedInfo;
   };
