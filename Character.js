@@ -9,9 +9,12 @@ const validBackgrounds = JSON.parse(fs.readFileSync('./backgrounds.json'));
 
 class Character {
   constructor() {
-
+    
+  }
+  
+  randomizeAll(){
     //Generate a random name
-    this.generateName();
+    this.setName('','');
 
     //Generate Randomized attributes
     this.randomizeAttributes();
@@ -32,11 +35,26 @@ class Character {
     //Assign to a random background
     this.setBackground(0);
   }
-  
-  generateName(){
+
+  generateFirstName(){
     let randomNames = JSON.parse(fs.readFileSync('./random-names.json'));
     this.fname = randomNames.first_names[Math.floor(Math.random() * randomNames.first_names.length)];
+
+  }
+
+  generateLastName(){
+    let randomNames = JSON.parse(fs.readFileSync('./random-names.json'));
     this.lname = randomNames.last_names[Math.floor(Math.random() * randomNames.last_names.length)];
+  }
+  
+  setName(firstname,lastname){
+    if(firstname == ''){
+      this.generateFirstName();
+    }else this.fname = firstname;
+
+    if(lastname ==''){
+      this.generateLastName();
+    }else this.lname = lastname;
   }
 
   generateAttributes() {
@@ -197,4 +215,4 @@ class Character {
     return formattedInfo;
   };
 }
-module.exports = Character;
+module.exports = {Character,validRaces,validClasses,validAlignments};
