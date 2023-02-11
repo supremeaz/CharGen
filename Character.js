@@ -1,15 +1,15 @@
 const fs = require('fs');
 const gamefunctions = require('./game-functions');
-const validClasses = ["Random","Fighter","Barbarian","Warlock","Paladin","Ranger","Monk","Rogue","Cleric","Sorcerer","Bard","Druid","Wizard"];
-const validRaces = ["Random","Human","Elf","Dwarf","Halfing","Gnome","Dragonborn","Half-elf","Half-orc","Thiefling"];
-const validAlignments = ["Random","Lawful Good","Neutral Good","Chaotic Good","Lawful Neutral","True Neutral","Chaotic Neutral","Lawful Evil","Neutral Evil","Chaotic Evil","Unaligned"];
 
-//Read defauls from files
-const validBackgrounds = JSON.parse(fs.readFileSync('./backgrounds.json'));
 
 class Character {
   constructor() {
-    
+    this.validClasses = ["Random","Fighter","Barbarian","Warlock","Paladin","Ranger","Monk","Rogue","Cleric","Sorcerer","Bard","Druid","Wizard"];
+    this.validRaces = ["Random","Human","Elf","Dwarf","Halfing","Gnome","Dragonborn","Half-elf","Half-orc","Thiefling"];
+    this.validAlignments = ["Random","Lawful Good","Neutral Good","Chaotic Good","Lawful Neutral","True Neutral","Chaotic Neutral","Lawful Evil","Neutral Evil","Chaotic Evil","Unaligned"];
+    //Read defauls from files
+    this.validBackgrounds = JSON.parse(fs.readFileSync('./backgrounds.json')).backgrounds;
+    // this.id = 1;
   }
   
   randomizeAll(){
@@ -38,22 +38,21 @@ class Character {
 
   generateFirstName(){
     let randomNames = JSON.parse(fs.readFileSync('./random-names.json'));
-    this.fname = randomNames.first_names[Math.floor(Math.random() * randomNames.first_names.length)];
-
+    return randomNames.first_names[Math.floor(Math.random() * randomNames.first_names.length)];
   }
 
   generateLastName(){
     let randomNames = JSON.parse(fs.readFileSync('./random-names.json'));
-    this.lname = randomNames.last_names[Math.floor(Math.random() * randomNames.last_names.length)];
+    return randomNames.last_names[Math.floor(Math.random() * randomNames.last_names.length)];
   }
   
   setName(firstname,lastname){
     if(firstname == ''){
-      this.generateFirstName();
+      this.fname = this.generateFirstName();
     }else this.fname = firstname;
 
     if(lastname ==''){
-      this.generateLastName();
+      this.lname = this.generateLastName();
     }else this.lname = lastname;
   }
 
@@ -65,8 +64,15 @@ class Character {
     return ability_scores;
   };
 
-  setAttributes(){
+  setAttributes(str,int,wis,dex,con,cha){
     //Code to assign ability score rolls with user input.
+    this.ability_score = {};
+    this.ability_score.str = str;
+    this.ability_score.int = int;
+    this.ability_score.wis = wis;
+    this.ability_score.dex = dex;
+    this.ability_score.con = con;
+    this.ability_score.cha = cha;
   }
 
   randomizeAttributes() {
@@ -89,36 +95,53 @@ class Character {
     return tempRolls.reduce((a,b)=> a+b,0) - Math.min(...tempRolls);
   }
 
+  getClass(){
+    return this.assigned_class;
+  }
+
   setClass(assignedClass){
     let chosenClass = 0;
     
     //If "Random" is chosen, randomly choose from one of the classes available through the array
     if(assignedClass == 0){
-      chosenClass = Math.floor(Math.random()*(validClasses.length-1)+1);
+      chosenClass = Math.floor(Math.random()*(this.validClasses.length-1)+1);
     } else chosenClass = assignedClass;
     
-    this.assigned_class = validClasses[chosenClass];
+    this.assigned_class = this.validClasses[chosenClass];
   }
   
+  getRace(){
+    return this.assigned_race;
+  }
+
   setRace(assignedRace){
     let chosenRace = 0;
     
     //If "Random" is chosen, randomly choose from one of the races available through the array
     if(assignedRace == 0){
-      chosenRace = Math.floor(Math.random()*(validRaces.length-1)+1);
+      chosenRace = Math.floor(Math.random()*(this.validRaces.length-1)+1);
     } else chosenRace = assignedRace;
     
-    this.assigned_race = validRaces[chosenRace];
+    this.assigned_race = this.validRaces[chosenRace];
   }
+
+  getAlignment(){
+    return this.assigned_alignment;
+  }
+
   setAlignment(assignedAlignment){
     let chosenAlignment = 0;
     
     //If "Random" is chosen, randomly choose from one of the races available through the array
     if(assignedAlignment == 0){
-      chosenAlignment = Math.floor(Math.random()*(validAlignments.length-1)+1);
+      chosenAlignment = Math.floor(Math.random()*(this.validAlignments.length-1)+1);
     } else chosenAlignment = assignedAlignment;
     
-    this.assigned_alignment = validAlignments[chosenAlignment];
+    this.assigned_alignment = this.validAlignments[chosenAlignment];
+  }
+
+  getBackground(){
+    return this.assigned_background;
   }
 
   setBackground(assignedBackground){
@@ -128,11 +151,11 @@ class Character {
     
     //If "Random" is chosen, randomly choose from one of the races available through the array
     if(assignedBackground == 0){
-      chosenBackground = validBackgrounds.backgrounds[Math.floor(Math.random()*(validBackgrounds.backgrounds.length-1)+1)].name;
+      chosenBackground = this.validBackgrounds[Math.floor(Math.random()*(this.validBackgrounds.length-1)+1)].name;
     } else{
-      chosenBackground = assignedBackground;
+      chosenBackground = this.validBackgrounds[assignedBackground].name;
     }
-    validBackgrounds.backgrounds.forEach(element => {
+    this.validBackgrounds.forEach(element => {
       if(element.name == chosenBackground){
         backgroundFound = true;
         this.assigned_background.name = element.name;
@@ -160,8 +183,8 @@ class Character {
       "fname":this.fname,
       "lname":this.lname,
       "ability_score":this.ability_score,
-      "assigned_class": this.assigned_class,
-      "assigned_race": this.assigned_race,
+      "class": this.assigned_class,
+      "race": this.assigned_race,
       "level":this.level,
       "xp": this.xp,
       "alignment": this.assigned_alignment,
@@ -175,6 +198,19 @@ class Character {
         console.log(err);
       }
     });
+    console.log("Successfully exported character to file: " + this.fname + this.lname + '.json');
+  }
+
+  importFromJSON = function(jsonChar){
+    this.fname = jsonChar.fname;
+    this.lname = jsonChar.lname;
+    this.ability_score = jsonChar.ability_score;
+    this.assigned_class = jsonChar.class;
+    this.assigned_race = jsonChar.race;
+    this.level = jsonChar.level;
+    this.xp = jsonChar.xp;
+    this.assigned_alignment = jsonChar.alignment;
+    this.assigned_background = jsonChar.background;
   }
 
   toString = function characterToString() {
@@ -215,4 +251,4 @@ class Character {
     return formattedInfo;
   };
 }
-module.exports = {Character,validRaces,validClasses,validAlignments};
+module.exports = Character;
