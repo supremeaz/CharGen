@@ -1,6 +1,8 @@
 Welcome to the U of T iSchool INF1005 - 118 Project - D&D Character Generator!
 Author: Arthur (ZiYu) Zhao
 
+Git Repository: https://github.com/supremeaz/CharGen
+
 To run the application, use the command: 
 
 node CharGenCLI
